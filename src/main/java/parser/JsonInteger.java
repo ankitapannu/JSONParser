@@ -19,4 +19,16 @@ public class JsonInteger extends JsonElement {
 	public String toString() {
 		return Integer.toString(this.num);
 	}
+	
+	public static boolean isInteger(String s) {
+	    if (s.length() == 0 || s == null) {
+	        return false;
+	    }
+	    try {
+	        int i = Integer.parseInt(s);
+	    } catch (Exception e) {
+	        return false;
+	    }
+	    return true;
+	}
 }

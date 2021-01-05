@@ -31,4 +31,19 @@ public class JsonArray extends JsonElement {
 		s += "]";
 		return s;
 	}
+	
+	public static boolean isArray(String s) {
+	    if (s.length() == 0 || s == null) {
+	        return false;
+	    }
+	    if (s.charAt(0) == '[' && s.charAt(s.length()-1) == ']') {
+	    	try {
+	    		String arr[]= s.split(",");
+	    	} catch (Exception e) {
+		        return false;
+		    }
+		    return true;
+	    } 
+	    return false;
+	}
 }

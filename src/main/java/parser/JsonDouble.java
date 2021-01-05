@@ -19,4 +19,16 @@ public class JsonDouble extends JsonElement {
 	public String toString() {
 		return Double.toString(this.num);
 	}
+	
+	public static boolean isDouble(String s) {
+	    if (s.length() == 0 || s == null) {
+	        return false;
+	    }
+	    try {
+	        double d = Double.parseDouble(s);
+	    } catch (Exception e) {
+	        return false;
+	    }
+	    return true;
+	}
 }

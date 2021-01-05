@@ -68,4 +68,60 @@ class JsonElementTest {
 		HashMap<String, JsonElement> map2 = new HashMap<String, JsonElement>();
 		System.out.println(jsonObj.toString());
 	}
+	
+	@Test
+	void testParseNull() {
+		String s = "null";
+		JsonElement element = JsonElement.parse(s);
+		assertEquals(element.toString(), s);
+	}
+	
+	@Test
+	void testParseTrue() {
+		String s = "true";
+		JsonElement element = JsonElement.parse(s);
+		assertEquals(element.toString(), s);
+	}
+	
+	@Test
+	void testParseFalse() {
+		String s = "false";
+		JsonElement element = JsonElement.parse(s);
+		assertEquals(element.toString(), s);
+	}
+	
+	@Test
+	void testParseIntPositive() {
+		String s = "1273847384";
+		JsonElement element = JsonElement.parse(s);
+		assertEquals(element.toString(), s);
+	}
+	
+	@Test
+	void testParseIntNegative() {
+		String s = "-1273847384";
+		JsonElement element = JsonElement.parse(s);
+		assertEquals(element.toString(), s);
+	}
+	
+	@Test
+	void testParseDouble1() {
+		String s = "1.32375873";
+		JsonElement element = JsonElement.parse(s);
+		assertEquals(element.toString(), s);
+	}
+	
+	@Test
+	void testParseDouble2() {
+		String s = "-1.32375873";
+		JsonElement element = JsonElement.parse(s);
+		assertEquals(element.toString(), s);
+	}
+	
+	@Test
+	void testString() {
+		String s = "abcdefg";
+		JsonElement element = JsonElement.parse(s);
+		assertEquals(element.toString(), s);
+	}
 }
