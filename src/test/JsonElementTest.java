@@ -1,6 +1,7 @@
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import parser.*;
@@ -72,56 +73,85 @@ class JsonElementTest {
 	@Test
 	void testParseNull() {
 		String s = "null";
-		JsonElement element = JsonElement.parse(s);
+		JsonElement element = JsonElement.parsePrimitive(s);
 		assertEquals(element.toString(), s);
 	}
 	
 	@Test
 	void testParseTrue() {
 		String s = "true";
-		JsonElement element = JsonElement.parse(s);
+		JsonElement element = JsonElement.parsePrimitive(s);
 		assertEquals(element.toString(), s);
 	}
 	
 	@Test
 	void testParseFalse() {
 		String s = "false";
-		JsonElement element = JsonElement.parse(s);
+		JsonElement element = JsonElement.parsePrimitive(s);
 		assertEquals(element.toString(), s);
 	}
 	
 	@Test
 	void testParseIntPositive() {
 		String s = "1273847384";
-		JsonElement element = JsonElement.parse(s);
+		JsonElement element = JsonElement.parsePrimitive(s);
 		assertEquals(element.toString(), s);
 	}
 	
 	@Test
 	void testParseIntNegative() {
 		String s = "-1273847384";
-		JsonElement element = JsonElement.parse(s);
+		JsonElement element = JsonElement.parsePrimitive(s);
 		assertEquals(element.toString(), s);
 	}
 	
 	@Test
 	void testParseDouble1() {
 		String s = "1.32375873";
-		JsonElement element = JsonElement.parse(s);
+		JsonElement element = JsonElement.parsePrimitive(s);
 		assertEquals(element.toString(), s);
 	}
 	
 	@Test
 	void testParseDouble2() {
 		String s = "-1.32375873";
-		JsonElement element = JsonElement.parse(s);
+		JsonElement element = JsonElement.parsePrimitive(s);
 		assertEquals(element.toString(), s);
 	}
 	
 	@Test
 	void testString() {
 		String s = "abcdefg";
-		JsonElement element = JsonElement.parse(s);
+		JsonElement element = JsonElement.parsePrimitive(s);
 		assertEquals(element.toString(), s);
+	}
+	
+	@Test
+	void testParseArrayEmpty() {
+		String arrayContents = "";
+		JsonElement element = JsonElement.parseArray(arrayContents);
+		assertEquals("[]", element.toString());
+	}
+	
+	@Test
+	void testParseArray() {
+		String arrayContents = "1";
+		JsonElement element = JsonElement.parseArray(arrayContents);
+		assertEquals("[1]", element.toString());
+	}
+	
+	@Test
+	void testParseArray2() {
+		String arrayContents = "\"1\",2,3,true,3.14";
+		JsonElement element = JsonElement.parseArray(arrayContents);
+		assertEquals("[\"1\", 2, 3, true, 3.14]", element.toString());
+	}
+	
+	@Test
+	void testParseObject() {
+		String object = "\"a\":1,\"b\":[2,3,4, \"a\", true]";
+		// String[] split = object.split(",(?=[^\\]]*(?:\\[|$))");
+		JsonElement element = JsonElement.parseObject(object);
+		System.out.println(element.toString());
 	}
 }
