@@ -11,8 +11,7 @@ public class JsonElement {
 		
 	}
 	
-	// TODO: make all types constants
-	public static String getElementType(String s) {
+	public static String getPrimitiveElementType(String s) {
 		if (s.equals("null")) {
 			return "JsonNull";
 		}
@@ -25,72 +24,116 @@ public class JsonElement {
 		if (JsonDouble.isDouble(s)) {
 			return "JsonDouble";
 		}
-		if (JsonArray.isArray(s)) {
-			return "JsonArray";
-		}
-		// TODO: add cases for JsonString and JsonObject
-		return "none";
+		return "JsonString";
 	}
 	
-	public static String[] tokenize(String s) {
-		try {
-    		return s.split("\\s+");
-    	} catch (Exception e) {
-	        throw e; 
-	    }
+	public static JsonElement parse(String s) {	
+		Tokenizer tokenizer = new Tokenizer(s);
+		String firstToken = tokenizer.peek();
+		if (firstToken.equals("{")) {
+			if (tokenizer.hasNext()) {
+				// parse object
+			} else {
+				// there is no closing brace (malformed JSON)
+				throw new IllegalArgumentException("Input JSON is malformed: JSON must end with }");
+			}
+		}
+		else if (firstToken.equals("[")) {
+			if (tokenizer.hasNext()) {
+				// parse array
+				parseArray(tokenizer);
+			} else {
+				// there is no closing bracket (malformed JSON)
+				throw new IllegalArgumentException("Input JSON is malformed: JSON must end with ]");
+			}
+		}
+		else {
+			return parsePrimitive(tokenizer);
+		}
+		return null;
 	}
 	
-	public static JsonElement parsePrimitive(String token) {
-		if (token.equals("null")) {
-			return new JsonNull();
+	public static JsonElement parseElement(Tokenizer t) {
+		String firstToken = t.peek();
+		if (firstToken.equals("{")) {
+			return parseObject(t);
 		}
-		if (token.equals("true")) {
-			return new JsonBoolean(true);
+		else if (firstToken.equals("[")) {
+			return parseArray(t);
 		}
-		if (token.equals("false")) {
-			return new JsonBoolean(false);
+		else {
+			return parsePrimitive(t);
 		}
-		if (getElementType(token).equals("JsonInteger")) {
-			return new JsonInteger(Integer.parseInt(token));
-		}
-		if (getElementType(token).equals("JsonDouble")) {
-			return new JsonDouble(Double.parseDouble(token));
+	}
+	
+	public static JsonElement parsePrimitive(Tokenizer t) {
+		String token = t.getNext();
+		String primitiveType = getPrimitiveElementType(token);
+		switch (primitiveType) {
+			case "JsonNull":
+				return new JsonNull();
+			case "JsonBoolean":
+				if (token.equals("true")) {
+					return new JsonBoolean(true);
+				} else {
+					return new JsonBoolean(false);
+				}
+			case "JsonInteger":
+				return new JsonInteger(Integer.parseInt(token));
+			case "JsonDouble":
+				return new JsonDouble(Double.parseDouble(token));
+			case "JsonString":
+				while (t.hasNext()) {
+					token += " " + t.getNext();
+				}
+				return new JsonString(token);	
 		}
 		return new JsonString(token);
 	}
 	
-	// precondition is that the entire JsonArray has been compressed into an input string (i.e. everything between [ and ])
-	// TODO: (will be done prior to calling this method when iterating over tokens array)
-	public static JsonElement parseArray(String arrayContents) {
-		String[] listContents = arrayContents.split(",");
-		List<String> arrayContentsList = Arrays.asList(listContents);
-		ArrayList<JsonElement> elements = new ArrayList<JsonElement>();
-		for (String c : arrayContentsList) {
-			elements.add(parsePrimitive(c));
+	public static JsonElement parseArray(Tokenizer t) {
+		String token = t.getNext();
+		JsonArray result = (new JsonArray(new ArrayList<JsonElement>()));
+		while (token != null && !token.equals("]")) {
+			if (token.equals(",")) {
+				token = t.getNext();
+			}
+			if (token.equals("[")) {
+				token = t.getNext();
+			}
+			Tokenizer next = new Tokenizer(token);
+			JsonElement e = parseElement(next);
+			result.add(e);
+			token = t.getNext();
 		}
-		return new JsonArray(elements);
+		return result;
 	}
 	
-	// precondition is that the entire JsonObject has been compressed into an input string (i.e. everything between { and })
-	// TODO: (will be done prior to calling this method when iterating over tokens array)
-	public static JsonElement parseObject(String objectContents) {
-		String[] split = objectContents.split(",(?=[^\\]]*(?:\\[|$))");
+	public static JsonElement parseObject(Tokenizer t) {
 		HashMap<String, JsonElement> map = new HashMap<String, JsonElement>();
 		JsonObject jsonObj = new JsonObject(map);
-		for (String i : split) {
-			int colon = i.indexOf(":");
-			String key = i.substring(0, colon);
-			String value = i.substring(colon+1);
-			String valueType = getElementType(value);
-			JsonElement e = null;
-			if (valueType.equals("JsonArray")) {
-				int openBracket = value.indexOf("[");
-				value = value.substring(openBracket+1, value.length()-1);
-				e = parseArray(value);
-			} else {
-				e = parsePrimitive(value);
+		String token = t.getNext();
+		boolean seenColon = false;
+		String key = "";
+		while (token != null && !token.equals("}")) {
+			if (token.equals("{")) {
+				token = t.getNext();
 			}
-			jsonObj.add(key, e);
+			if (seenColon == false) {
+				key = token;
+				token = t.getNext();
+			}
+			if (token.equals(":")) {
+				seenColon = true;
+				token = t.getNext();
+			}
+			if (seenColon == true) {
+				Tokenizer next = new Tokenizer(token);
+				JsonElement value = parseElement(next);
+				jsonObj.add(key, value);
+				token = t.getNext();
+				seenColon = false; // set back to false for the next (key, value) pair
+			}
 		}
 		return jsonObj;
 	}

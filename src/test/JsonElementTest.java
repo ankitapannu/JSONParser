@@ -54,6 +54,16 @@ class JsonElementTest {
 	}
 	
 	@Test
+	void testNestedJsonArray() {
+		JsonArray arr = new JsonArray(new ArrayList<JsonElement>());
+		ArrayList<JsonElement> a = new ArrayList<JsonElement>();
+		JsonArray arr2 = new JsonArray(a);
+		a.add(new JsonInteger(1));
+		arr.add(arr2);
+		assertEquals("[[1]]", arr.toString());
+	}
+	
+	@Test
 	void testJsonObject() {
 		HashMap<String, JsonElement> map = new HashMap<String, JsonElement>();
 		JsonObject jsonObj = new JsonObject(map);
@@ -73,85 +83,124 @@ class JsonElementTest {
 	@Test
 	void testParseNull() {
 		String s = "null";
-		JsonElement element = JsonElement.parsePrimitive(s);
-		assertEquals(element.toString(), s);
+		Tokenizer t = new Tokenizer(s);
+		JsonElement element = JsonElement.parseElement(t);
+		assertEquals(s, element.toString());
 	}
 	
 	@Test
 	void testParseTrue() {
 		String s = "true";
-		JsonElement element = JsonElement.parsePrimitive(s);
-		assertEquals(element.toString(), s);
+		Tokenizer t = new Tokenizer(s);
+		JsonElement element = JsonElement.parseElement(t);
+		assertEquals(s, element.toString());
 	}
 	
 	@Test
 	void testParseFalse() {
 		String s = "false";
-		JsonElement element = JsonElement.parsePrimitive(s);
-		assertEquals(element.toString(), s);
+		Tokenizer t = new Tokenizer(s);
+		JsonElement element = JsonElement.parseElement(t);
+		assertEquals(s, element.toString());
 	}
 	
 	@Test
 	void testParseIntPositive() {
 		String s = "1273847384";
-		JsonElement element = JsonElement.parsePrimitive(s);
-		assertEquals(element.toString(), s);
+		Tokenizer t = new Tokenizer(s);
+		JsonElement element = JsonElement.parseElement(t);
+		assertEquals(s, element.toString());
 	}
 	
 	@Test
 	void testParseIntNegative() {
 		String s = "-1273847384";
-		JsonElement element = JsonElement.parsePrimitive(s);
-		assertEquals(element.toString(), s);
+		Tokenizer t = new Tokenizer(s);
+		JsonElement element = JsonElement.parseElement(t);
+		assertEquals(s, element.toString());
 	}
 	
 	@Test
 	void testParseDouble1() {
 		String s = "1.32375873";
-		JsonElement element = JsonElement.parsePrimitive(s);
-		assertEquals(element.toString(), s);
+		Tokenizer t = new Tokenizer(s);
+		JsonElement element = JsonElement.parseElement(t);
+		assertEquals(s, element.toString());
 	}
 	
 	@Test
-	void testParseDouble2() {
+	void testParseDoubleNegative() {
 		String s = "-1.32375873";
-		JsonElement element = JsonElement.parsePrimitive(s);
-		assertEquals(element.toString(), s);
+		Tokenizer t = new Tokenizer(s);
+		JsonElement element = JsonElement.parseElement(t);
+		assertEquals(s, element.toString());
 	}
 	
 	@Test
 	void testString() {
 		String s = "abcdefg";
-		JsonElement element = JsonElement.parsePrimitive(s);
-		assertEquals(element.toString(), s);
+		Tokenizer t = new Tokenizer(s);
+		JsonElement element = JsonElement.parseElement(t);
+		assertEquals(s, element.toString());
+	}
+	
+	@Test
+	void testStringSpace() {
+		String s = "abc def ghi";
+		Tokenizer t = new Tokenizer(s);
+		JsonElement element = JsonElement.parseElement(t);
+		assertEquals(s, element.toString());
 	}
 	
 	@Test
 	void testParseArrayEmpty() {
-		String arrayContents = "";
-		JsonElement element = JsonElement.parseArray(arrayContents);
-		assertEquals("[]", element.toString());
+		String arrayContents = "[ ]";
+		String[] split = arrayContents.split("//s+");
+		System.out.println(split.length);
+		for (String s : split) {
+			System.out.println(s);
+		}
+		Tokenizer t = new Tokenizer(arrayContents);
+		JsonElement element = JsonElement.parseArray(t);
 	}
 	
 	@Test
 	void testParseArray() {
-		String arrayContents = "1";
-		JsonElement element = JsonElement.parseArray(arrayContents);
-		assertEquals("[1]", element.toString());
+		String arrayContents = "[ true ]";
+		Tokenizer t = new Tokenizer(arrayContents);
+		JsonElement element = JsonElement.parseElement(t);
+		assertEquals("[true]", element.toString());
 	}
 	
 	@Test
 	void testParseArray2() {
-		String arrayContents = "\"1\",2,3,true,3.14";
-		JsonElement element = JsonElement.parseArray(arrayContents);
+		String arrayContents = "[ 1 , 2 ]";
+		Tokenizer t = new Tokenizer(arrayContents);
+		JsonElement element = JsonElement.parseElement(t);
+		assertEquals("[1, 2]", element.toString());
+	}
+	
+	@Test
+	void testParseArray3() {
+		String arrayContents = "[ \"1\" , 2 , 3 , true , 3.14 ]";
+		Tokenizer t = new Tokenizer(arrayContents);
+		JsonElement element = JsonElement.parseArray(t);
 		assertEquals("[\"1\", 2, 3, true, 3.14]", element.toString());
 	}
 	
 	@Test
+	void testParseArray4() {
+		String arrayContents = "[ [ 1 ] ]";
+		Tokenizer t = new Tokenizer(arrayContents);
+		JsonElement element = JsonElement.parseArray(t);
+		assertEquals("[[1]]", element.toString());
+	}
+	
+	@Test
 	void testParseObject() {
-		String object = "\"a\":1,\"b\":[2,3,4, \"a\", true]";
-		// String[] split = object.split(",(?=[^\\]]*(?:\\[|$))");
-		JsonElement element = JsonElement.parseObject(object);
+		String objectContents = "{ \"a\" : true , \"b\" : 1 }";
+		Tokenizer t = new Tokenizer(objectContents);
+		JsonElement element = JsonElement.parseElement(t);
 		System.out.println(element.toString());
 	}
 }
