@@ -32,7 +32,7 @@ public class JsonElement {
 		String firstToken = tokenizer.peek();
 		if (firstToken.equals("{")) {
 			if (tokenizer.hasNext()) {
-				// parse object
+				parseObject(tokenizer);
 			} else {
 				// there is no closing brace (malformed JSON)
 				throw new IllegalArgumentException("Input JSON is malformed: JSON must end with }");
@@ -40,7 +40,6 @@ public class JsonElement {
 		}
 		else if (firstToken.equals("[")) {
 			if (tokenizer.hasNext()) {
-				// parse array
 				parseArray(tokenizer);
 			} else {
 				// there is no closing bracket (malformed JSON)
@@ -93,20 +92,21 @@ public class JsonElement {
 	
 	public static JsonElement parseArray(Tokenizer t) {
 		String token = t.getNext();
-		JsonArray result = (new JsonArray(new ArrayList<JsonElement>()));
+		ArrayList<JsonElement> elements = new ArrayList<JsonElement>();
 		while (token != null && !token.equals("]")) {
-			if (token.equals(",")) {
+			if (token.equals(",") && elements.size() > 0) {
+				token = t.getNext();
+				Tokenizer next = new Tokenizer(token);
+				JsonElement e = parseElement(next);
+				elements.add(e);
+				token = t.getNext();
+			} else {
+				JsonElement e = parseElement(t);
+				elements.add(e);
 				token = t.getNext();
 			}
-			if (token.equals("[")) {
-				token = t.getNext();
-			}
-			Tokenizer next = new Tokenizer(token);
-			JsonElement e = parseElement(next);
-			result.add(e);
-			token = t.getNext();
 		}
-		return result;
+		return new JsonArray(elements);
 	}
 	
 	public static JsonElement parseObject(Tokenizer t) {
@@ -116,20 +116,13 @@ public class JsonElement {
 		boolean seenColon = false;
 		String key = "";
 		while (token != null && !token.equals("}")) {
-			if (token.equals("{")) {
-				token = t.getNext();
-			}
 			if (seenColon == false) {
 				key = token;
 				token = t.getNext();
 			}
 			if (token.equals(":")) {
 				seenColon = true;
-				token = t.getNext();
-			}
-			if (seenColon == true) {
-				Tokenizer next = new Tokenizer(token);
-				JsonElement value = parseElement(next);
+				JsonElement value = parseElement(t);
 				jsonObj.add(key, value);
 				token = t.getNext();
 				seenColon = false; // set back to false for the next (key, value) pair
