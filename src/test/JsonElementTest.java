@@ -38,6 +38,12 @@ class JsonElementTest {
 	}
 	
 	@Test
+	void testJsonArrayEmpty() {
+		JsonArray arr = new JsonArray(new ArrayList<JsonElement>());
+		assertEquals(arr.toString(), "[]");
+	}
+	
+	@Test
 	void testJsonArray() {
 		JsonArray arr = new JsonArray(new ArrayList<JsonElement>());
 		arr.add(new JsonString("abc"));
@@ -159,7 +165,6 @@ class JsonElementTest {
 		assertEquals("[true]", element.toString());
 	}
 	
-	// TODO: debug this
 	@Test
 	void testParseArrayEmpty() {
 		String arrayContents = "[ ]";
@@ -175,6 +180,12 @@ class JsonElementTest {
 	
 	@Test
 	void testParseArrayWrong2() {
+		String arrayContents = "[ , , ]";
+		JsonElement element = JsonElement.parse(arrayContents);
+	}
+	
+	@Test
+	void testParseArrayWrong3() {
 		String arrayContents = "[ 1 , 2 ";
 		JsonElement element = JsonElement.parse(arrayContents);
 	}
@@ -234,6 +245,13 @@ class JsonElementTest {
 		String objectContents = "{ }";
 		JsonElement element = JsonElement.parse(objectContents);
 		assertEquals("{\n}", element.toString());
+	}
+	
+	@Test
+	void testParseObjectWrong() {
+		String objectContents = "{ ";
+		JsonElement element = JsonElement.parse(objectContents);
+		System.out.println(element.toString());
 	}
 	
 	@Test

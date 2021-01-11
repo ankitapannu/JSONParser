@@ -24,10 +24,12 @@ public class JsonArray extends JsonElement {
 	
 	public String toString() {
 		String s = "[";
-		for (int i = 0; i < arr.size()-1; i++) {
-			s += arr.get(i).toString() + ", ";
+		if (arr.size() > 0) {
+			for (int i = 0; i < arr.size()-1; i++) {
+				s += arr.get(i).toString() + ", ";
+			}
+			s += arr.get(arr.size() - 1);
 		}
-		s += arr.get(arr.size() - 1);
 		s += "]";
 		return s;
 	}

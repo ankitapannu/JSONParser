@@ -73,26 +73,30 @@ public class JsonElement {
 	public static JsonElement parseArray(Tokenizer t) {
 		String token = t.getNext();
 		ArrayList<JsonElement> elements = new ArrayList<JsonElement>();
+		JsonArray jsonArr = new JsonArray(elements);
 		while (token != null && !token.equals("]")) {
 			if (token.equals(",") && elements.size() > 0) {
 				token = t.getNext();
 				Tokenizer next = new Tokenizer(token);
 				JsonElement e = parseElement(next);
-				elements.add(e);
+				jsonArr.add(e);
 				token = t.getNext();
 			} else {
-				if (t.peek() != null && t.peek().indexOf(",") != -1 && elements.size() == 0) {
+				if (t != null && t.peek() != null && t.peek().indexOf(",") != -1 && elements.size() == 0) {
 					throw new IllegalArgumentException("Malformed JSON: Got , but expected JsonElement");
 				}
+				if (t != null && t.peek().equals("]")) {
+					return jsonArr;
+				}
 				JsonElement e = parseElement(t);
-				elements.add(e);
+				jsonArr.add(e);
 				token = t.getNext();
 			}
 		}
 		if (token == null) {
 			throw new IllegalArgumentException("Malformed JSON: JsonArray must end with ]");
 		}
-		return new JsonArray(elements);
+		return jsonArr;
 	}
 	
 	public static JsonElement parseObject(Tokenizer t) {
@@ -106,13 +110,16 @@ public class JsonElement {
 				key = token;
 				token = t.getNext();
 			}
-			if (token.equals(":")) {
+			if (token != null && token.equals(":")) {
 				seenColon = true;
 				JsonElement value = parseElement(t);
 				jsonObj.add(key, value);
 				token = t.getNext();
 				seenColon = false; // set back to false for the next (key, value) pair
 			}
+		}
+		if (token == null) {
+			throw new IllegalArgumentException("Malformed JSON: JsonObject must end with }");
 		}
 		return jsonObj;
 	}
