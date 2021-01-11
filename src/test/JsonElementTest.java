@@ -153,118 +153,121 @@ class JsonElementTest {
 	}
 	
 	@Test
+	void testParseArray() {
+		String arrayContents = "[ true ]";
+		JsonElement element = JsonElement.parse(arrayContents);
+		assertEquals("[true]", element.toString());
+	}
+	
+	// TODO: debug this
+	@Test
 	void testParseArrayEmpty() {
 		String arrayContents = "[ ]";
-		String[] split = arrayContents.split("//s+");
-		System.out.println(split.length);
-		for (String s : split) {
-			System.out.println(s);
-		}
-		Tokenizer t = new Tokenizer(arrayContents);
-		JsonElement element = JsonElement.parseArray(t);
+		JsonElement element = JsonElement.parse(arrayContents);
+		assertEquals("[]", element.toString());
 	}
 	
 	@Test
-	void testParseArray() {
-		String arrayContents = "[ true ]";
-		Tokenizer t = new Tokenizer(arrayContents);
-		JsonElement element = JsonElement.parseElement(t);
-		assertEquals("[true]", element.toString());
+	void testParseArrayWrong() {
+		String arrayContents = "[ , ]";
+		JsonElement element = JsonElement.parse(arrayContents);
+	}
+	
+	@Test
+	void testParseArrayWrong2() {
+		String arrayContents = "[ 1 , 2 ";
+		JsonElement element = JsonElement.parse(arrayContents);
 	}
 	
 	@Test
 	void testParseArray2() {
 		String arrayContents = "[ 1 , 2 ]";
-		Tokenizer t = new Tokenizer(arrayContents);
-		JsonElement element = JsonElement.parseElement(t);
+		JsonElement element = JsonElement.parse(arrayContents);
 		assertEquals("[1, 2]", element.toString());
 	}
 	
 	@Test
 	void testParseArray3() {
 		String arrayContents = "[ 1 , 2 , 3 ]";
-		Tokenizer t = new Tokenizer(arrayContents);
-		JsonElement element = JsonElement.parseArray(t);
+		JsonElement element = JsonElement.parse(arrayContents);
 		assertEquals("[1, 2, 3]", element.toString());
 	}
+	
 	
 	@Test
 	void testParseArray4() {
 		String arrayContents = "[ 1 , 2 , 3 , true , false , \"a\" ]";
-		Tokenizer t = new Tokenizer(arrayContents);
-		JsonElement element = JsonElement.parseArray(t);
+		JsonElement element = JsonElement.parse(arrayContents);
 		assertEquals("[1, 2, 3, true, false, \"a\"]", element.toString());
 	}
 	
 	@Test
 	void testParseArray5() {
 		String arrayContents = "[ [ 1 ] ]";
-		Tokenizer t = new Tokenizer(arrayContents);
-		JsonElement element = JsonElement.parseArray(t);
+		JsonElement element = JsonElement.parse(arrayContents);
 		assertEquals("[[1]]", element.toString());
 	}
 	
 	@Test
 	void testParseArray6() {
 		String arrayContents = "[ [ 1 , \"a\" ] ]";
-		Tokenizer t = new Tokenizer(arrayContents);
-		JsonElement element = JsonElement.parseArray(t);
+		JsonElement element = JsonElement.parse(arrayContents);
 		assertEquals("[[1, \"a\"]]", element.toString());
+	}
+	
+	@Test
+	void testParseArrayWithObject() {
+		String arrayContents = "[ { \"a\" : 1 } ]";
+		JsonElement element = JsonElement.parse(arrayContents);
+		assertEquals("[{\n" + "\t" + "\"a\": 1\n}]", element.toString());
 	}
 	
 	@Test
 	void testParseObject() {
 		String objectContents = "{ \"a\" : true }";
-		Tokenizer t = new Tokenizer(objectContents);
-		JsonElement element = JsonElement.parseElement(t);
+		JsonElement element = JsonElement.parse(objectContents);
 		System.out.println(element.toString());
 	}
 	
 	@Test
 	void testEmptyObject() {
-		String arrayContents = "{ }";
-		Tokenizer t = new Tokenizer(arrayContents);
-		JsonElement element = JsonElement.parseElement(t);
+		String objectContents = "{ }";
+		JsonElement element = JsonElement.parse(objectContents);
 		assertEquals("{\n}", element.toString());
 	}
 	
 	@Test
 	void testParseObject2() {
 		String objectContents = "{ \"a\" : true , \"b\" : false }";
-		Tokenizer t = new Tokenizer(objectContents);
-		JsonElement element = JsonElement.parseElement(t);
+		JsonElement element = JsonElement.parse(objectContents);
 		System.out.println(element.toString());
 	}
 	
 	@Test
 	void testParseObject3() {
 		String objectContents = "{ \"a\" : true , \"b\" : 3.14 , \"c\" : [ 1 ] }";
-		Tokenizer t = new Tokenizer(objectContents);
-		JsonElement element = JsonElement.parseElement(t);
+		JsonElement element = JsonElement.parse(objectContents);
 		System.out.println(element.toString());
 	}
 	
 	@Test
 	void testParseObject4() {
 		String objectContents = "{ \"a\" : true , \"b\" : 3.14 , \"c\" : [ 1 , 2 , false ] }";
-		Tokenizer t = new Tokenizer(objectContents);
-		JsonElement element = JsonElement.parseElement(t);
+		JsonElement element = JsonElement.parse(objectContents);
 		System.out.println(element.toString());
 	}
 	
 	@Test
 	void testParseObject5() {
 		String objectContents = "{ \"a\" : true , \"b\" : 1 , \"c\" : { \"d\" : 2 , \"e\" : [ 1 , 2 ] } }";
-		Tokenizer t = new Tokenizer(objectContents);
-		JsonElement element = JsonElement.parseElement(t);
+		JsonElement element = JsonElement.parse(objectContents);
 		System.out.println(element.toString());
 	}
 	
 	@Test
 	void testParseObject6() {
 		String objectContents = "{ \"a\" : true , \"b\" : 1 , \"c\" : { \"d\" : 2 , \"e\" : { \"f\" : 3 } } }";
-		Tokenizer t = new Tokenizer(objectContents);
-		JsonElement element = JsonElement.parseElement(t);
+		JsonElement element = JsonElement.parse(objectContents);
 		System.out.println(element.toString());
 	}
 }

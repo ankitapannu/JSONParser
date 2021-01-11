@@ -29,27 +29,7 @@ public class JsonElement {
 	
 	public static JsonElement parse(String s) {	
 		Tokenizer tokenizer = new Tokenizer(s);
-		String firstToken = tokenizer.peek();
-		if (firstToken.equals("{")) {
-			if (tokenizer.hasNext()) {
-				parseObject(tokenizer);
-			} else {
-				// there is no closing brace (malformed JSON)
-				throw new IllegalArgumentException("Input JSON is malformed: JSON must end with }");
-			}
-		}
-		else if (firstToken.equals("[")) {
-			if (tokenizer.hasNext()) {
-				parseArray(tokenizer);
-			} else {
-				// there is no closing bracket (malformed JSON)
-				throw new IllegalArgumentException("Input JSON is malformed: JSON must end with ]");
-			}
-		}
-		else {
-			return parsePrimitive(tokenizer);
-		}
-		return null;
+		return parseElement(tokenizer);
 	}
 	
 	public static JsonElement parseElement(Tokenizer t) {
@@ -101,10 +81,16 @@ public class JsonElement {
 				elements.add(e);
 				token = t.getNext();
 			} else {
+				if (t.peek() != null && t.peek().indexOf(",") != -1 && elements.size() == 0) {
+					throw new IllegalArgumentException("Malformed JSON: Got , but expected JsonElement");
+				}
 				JsonElement e = parseElement(t);
 				elements.add(e);
 				token = t.getNext();
 			}
+		}
+		if (token == null) {
+			throw new IllegalArgumentException("Malformed JSON: JsonArray must end with ]");
 		}
 		return new JsonArray(elements);
 	}
