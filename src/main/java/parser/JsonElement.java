@@ -66,37 +66,29 @@ public class JsonElement {
 					token += " " + t.getNext();
 				}
 				return new JsonString(token);	
+			default:
+				throw new IllegalArgumentException("Internal error: Not a valid primitibe type");
 		}
-		return new JsonString(token);
 	}
 	
 	public static JsonElement parseArray(Tokenizer t) {
-		String token = t.getNext();
+		String token = t.getNext(); // eat [
 		ArrayList<JsonElement> elements = new ArrayList<JsonElement>();
-		JsonArray jsonArr = new JsonArray(elements);
+		token = t.peek();
 		while (token != null && !token.equals("]")) {
-			if (token.equals(",") && elements.size() > 0) {
-				token = t.getNext();
-				Tokenizer next = new Tokenizer(token);
-				JsonElement e = parseElement(next);
-				jsonArr.add(e);
-				token = t.getNext();
-			} else {
-				if (t != null && t.peek() != null && t.peek().indexOf(",") != -1 && elements.size() == 0) {
+			if (elements.size() > 0) {
+				if (!token.equals(",")) {
 					throw new IllegalArgumentException("Malformed JSON: Got , but expected JsonElement");
 				}
-				if (t != null && t.peek().equals("]")) {
-					return jsonArr;
-				}
-				JsonElement e = parseElement(t);
-				jsonArr.add(e);
-				token = t.getNext();
-			}
+			} 
+			JsonElement e = parseElement(t);
+			elements.add(e);
+			token = t.getNext();
 		}
-		if (token == null) {
-			throw new IllegalArgumentException("Malformed JSON: JsonArray must end with ]");
-		}
-		return jsonArr;
+//		if (token == null) {
+//			throw new IllegalArgumentException("Malformed JSON");
+//		}
+		return new JsonArray(elements);
 	}
 	
 	public static JsonElement parseObject(Tokenizer t) {

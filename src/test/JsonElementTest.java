@@ -173,6 +173,13 @@ class JsonElementTest {
 	}
 	
 	@Test
+	void testParseArray1() {
+		String arrayContents = "[ 1 ]";
+		JsonElement element = JsonElement.parse(arrayContents);
+		assertEquals("[1]", element.toString());
+	}
+	
+	@Test
 	void testParseArrayWrong() {
 		String arrayContents = "[ , ]";
 		JsonElement element = JsonElement.parse(arrayContents);
@@ -214,14 +221,14 @@ class JsonElementTest {
 	
 	@Test
 	void testParseArray5() {
-		String arrayContents = "[ [ 1 ] ]";
+		String arrayContents = "[ [ { \"key\" : 1.3 } ] ]";
 		JsonElement element = JsonElement.parse(arrayContents);
 		assertEquals("[[1]]", element.toString());
 	}
 	
 	@Test
 	void testParseArray6() {
-		String arrayContents = "[ [ 1 , \"a\" ] ]";
+		String arrayContents = "[ 1 , [ 1.234 ] ]";
 		JsonElement element = JsonElement.parse(arrayContents);
 		assertEquals("[[1, \"a\"]]", element.toString());
 	}
