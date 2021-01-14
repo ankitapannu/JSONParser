@@ -5,26 +5,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-public class JsonElement {
+public abstract class JsonElement {
 	
-	public JsonElement() {
-		
-	}
 	
-	public static String getPrimitiveElementType(String s) {
-		if (s.equals("null")) {
-			return "JsonNull";
-		}
-		if (s.equals("true") || s.equals("false")) {
-			return "JsonBoolean";
-		}
-		if (JsonInteger.isInteger(s)) {
-			return "JsonInteger";
-		}
-		if (JsonDouble.isDouble(s)) {
-			return "JsonDouble";
-		}
-		return "JsonString";
+	public static String toString(JsonElement e) {	
+		return e.toString();
 	}
 	
 	public static JsonElement parse(String s) {	
@@ -47,28 +32,28 @@ public class JsonElement {
 	
 	public static JsonElement parsePrimitive(Tokenizer t) {
 		String token = t.getNext();
-		String primitiveType = getPrimitiveElementType(token);
-		switch (primitiveType) {
-			case "JsonNull":
-				return new JsonNull();
-			case "JsonBoolean":
-				if (token.equals("true")) {
-					return new JsonBoolean(true);
-				} else {
-					return new JsonBoolean(false);
-				}
-			case "JsonInteger":
-				return new JsonInteger(Integer.parseInt(token));
-			case "JsonDouble":
-				return new JsonDouble(Double.parseDouble(token));
-			case "JsonString":
-				while (t.hasNext()) {
-					token += " " + t.getNext();
-				}
-				return new JsonString(token);	
-			default:
-				throw new IllegalArgumentException("Internal error: Not a valid primitibe type");
+		if (token.equals("null")) {
+			return new JsonNull();
 		}
+		if (token.equals("true")) {
+			return new JsonBoolean(true);
+		}
+		if (token.equals("false")) {
+			return new JsonBoolean(false);
+		}
+		if (JsonInteger.isInteger(token)) {
+			return new JsonInteger(Integer.parseInt(token));
+		}
+		if (JsonDouble.isDouble(token)) {
+			return new JsonDouble(Double.parseDouble(token));
+		}
+		while (t.hasNext() && !t.peek().equals("]")) {
+			if (token.equals("\"")) {
+				break;
+			}
+			token += " " + t.getNext();
+		}
+		return new JsonString(token);	
 	}
 	
 	public static JsonElement parseArray(Tokenizer t) {
@@ -85,9 +70,9 @@ public class JsonElement {
 			elements.add(e);
 			token = t.getNext();
 		}
-//		if (token == null) {
-//			throw new IllegalArgumentException("Malformed JSON");
-//		}
+		if (token == null) {
+			throw new IllegalArgumentException("Malformed JSON");
+		}
 		return new JsonArray(elements);
 	}
 	
